@@ -1,4 +1,5 @@
-#stupid kid poetry.
+#computer generated looped acrostic
+#Aankit Patel, ITP-NYU, Reading & Writing Electronic Text
 
 import sys
 
