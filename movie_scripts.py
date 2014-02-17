@@ -1,4 +1,5 @@
 #movie scripts
+#Aankit Patel, ITP-NYU, Reading & Writing Electronic Text
 
 import sys
 import re
