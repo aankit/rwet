@@ -1,0 +1,7 @@
+1) nouns.txt, verbs.txt, and adjs.txt are the files I extracted from wordnet
+
+2) bigram_word_generator.py is the script I used to generate the list of new nouns, verbs, and adjectives
+
+3) pnouns.txt, pverbs.txt, and padjs.txt are the lists I generated with bigram_word_generator.py
+
+4) bigram_poems.py is the script to make short poems with the words I created.
