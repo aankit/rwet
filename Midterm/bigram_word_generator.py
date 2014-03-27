@@ -6,6 +6,7 @@ from collections import Counter
 combos = list()
 ncombos = dict()
 nposition = dict()
+relations = dict()
 
 posprops  = dict()
 nprops = dict() #proportion of bigram
@@ -24,8 +25,14 @@ combos = [x+y for x,y in itertools.permutations(string.ascii_lowercase, 2)]
 #count up how often those combinations appear in the english language, words form Wordnet
 for word in sys.stdin:
 	word = word.strip().lower()
+	foundBigrams = list()
 	for c in combos:
+		
 		if c in word:
+			#establish relationship between bigrams
+			foundBigrams.append(c)
+			if c not in relations:
+				relations[c] = dict()
 			#get the position of the bigram in the word
 			position = word.find(c)
 			if c in nposition:
@@ -37,6 +44,16 @@ for word in sys.stdin:
 				ncombos[c] += 1
 			else:
 				ncombos[c] = 1
+	for b, l in relations.items():
+		temp = list()
+		temp = [fb for fb in foundBigrams if fb != b]
+		for t in temp:
+			if t in l:
+				l[t] += 1
+			else:
+				l[t] = 1	
+
+print relations.get('er')
 
 #organize the position of the bigrams into ranges, using ranges to avoid bigrams showing
 #up where they normally do
@@ -58,7 +75,7 @@ for pos in nposition.iterkeys():
 			end +=1
 	posprops[pos] = (early/count, mid/count, late/count, end/count)
 
-print posprops
+#print posprops
 
 #add up the total number of matches for some math!
 total_matches = 0.0
