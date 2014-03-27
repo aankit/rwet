@@ -32,7 +32,7 @@ for word in sys.stdin:
 			#establish relationship between bigrams
 			foundBigrams.append(c)
 			if c not in relations:
-				relations[c] = dict()
+				relations[c] = list()
 			#get the position of the bigram in the word
 			position = word.find(c)
 			if c in nposition:
@@ -44,16 +44,27 @@ for word in sys.stdin:
 				ncombos[c] += 1
 			else:
 				ncombos[c] = 1
-	for b, l in relations.items():
-		temp = list()
-		temp = [fb for fb in foundBigrams if fb != b]
-		for t in temp:
-			if t in l:
-				l[t] += 1
-			else:
-				l[t] = 1	
+	# for b, l in relations.items():
+	# 	temp = list()
+	# 	temp = [fb for fb in foundBigrams if fb != b]
+	# 	l.append(temp)
 
-print relations.get('er')
+
+sorted_ncombos = sorted(ncombos.iteritems(), key=operator.itemgetter(1), reverse=True)
+cumsum = 0;
+for i in range(len(sorted_ncombos)):
+	cumsum += sorted_ncombos[i][1]
+	sorted_ncombos[i] += (cumsum, )
+
+print max(sorted_ncombos, key=operator.itemgetter(2))[2]	
+
+#a separate attempt at figuring out how to choice from the list of bigram frequencies
+x = ncombos.items()
+dt = np.dtype([('bigram', np.str_, 2), ('matches', np.float64, 1)])
+ncombos_array = np.asarray(x, dtype=dt)
+ncombos_array.sort(order ='matches')
+y = np.cumsum(ncombos_array['matches'])
+ncombos_array
 
 #organize the position of the bigrams into ranges, using ranges to avoid bigrams showing
 #up where they normally do
@@ -67,20 +78,24 @@ for pos in nposition.iterkeys():
 		count += 1
 		if p < 2:
 			early += 1
-		if p < 6:
+		elif p < 6:
 			mid += 1
-		if p < 10:
+		elif p < 10:
 			late += 1
-		if p > 10:
+		elif p > 10:
 			end +=1
 	posprops[pos] = (early/count, mid/count, late/count, end/count)
 
-#print posprops
 
 #add up the total number of matches for some math!
 total_matches = 0.0
-for matches in ncombos.itervalues():
-	total_matches += matches
+most_matches = 0
+winner = ''
+for c, m in ncombos.iteritems():
+	total_matches += m
+	if m > most_matches:
+		most_matches = m
+		winner = c
 
 
 #calculate frequency combos appear and weed out combos that are negligble
@@ -98,7 +113,6 @@ for c in ncombos.iterkeys():
 #sort nprops
 sorted_nprops = sorted(nprops.iteritems(), key=operator.itemgetter(1), reverse=True)
 
-#LET"S CONVERT TO NDARRAYS!!!!!!!
 
 #determine mode and mean
 data = Counter(modeList)
@@ -112,25 +126,28 @@ for prop in nprops.itervalues():
 	sum_of_sqdiffs = sum_of_sqdiffs + (prop - mean)**2
 	sum_of_qdiffs = sum_of_qdiffs + (prop-mean)**4 
 
-alpha = (sum_of_qdiffs/count)/((sum_of_sqdiffs/count)**2)-3 #KURTOSIS, aka shape of the curve
+alpha = (sum_of_qdiffs/count)/((sum_of_sqdiffs/count)**2)-2 #KURTOSIS, aka shape of the curve
 stddev =(sum_of_sqdiffs/count)**(1/2) #standard deviation
 
 
-for words in range(numWords):
-	newWord = ""
-	len_of_newWord = random.randint(shortest, longest)
-	for l in range(len_of_newWord):
-		chooser = mode[0][0]*random.paretovariate(alpha)
-		winRange = 1
-		winner = ""
-		for c in nprops.iterkeys():
-			compare = abs((nprops[c] - chooser))
-			if compare < winRange:
-				winner = c
-				winRange = compare
-		#print winner
-		newWord += winner
-	newWords.append(newWord)
+# for words in range(numWords):
+# 	newWord = ""
+# 	len_of_newWord = random.randint(shortest, longest)
+# 	chooser = random.randint()
+# 	for l in range(len_of_newWord):
+		
+# 		#old pareto variate method - chooser = mode[0][0]*random.paretovariate(alpha)
+# 		#print chooser
+# 		winRange = 1
+# 		winner = ""
+# 		for c in nprops.iterkeys():
+# 			compare = abs((nprops[c] - chooser))
+# 			if compare < winRange:
+# 				winner = c
+# 				winRange = compare
+# 		#print winner
+# 		newWord += winner
+# 	newWords.append(newWord)
 
 # for word in newWords:
 # 	print word
