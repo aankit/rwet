@@ -6,9 +6,9 @@ nposition = dict()
 relations = dict()
 posprops  = dict()
 
-meanLength = 4
-stdLength = 1.7
-numWords = 100
+shortest = 2
+longest = 5
+numWords = 1000
 
 #functions
 def select_weighted(d):
@@ -19,14 +19,7 @@ def select_weighted(d):
       offset -= v
 
 def select_max_at_pos(l, d, pos):
-	if pos < 2:
-		pos = 0
-	elif pos < 6:
-		pos = 1
-	elif pos < 10:
-		pos = 2
-	elif pos > 10:
-		pos = 3
+	pos = pos - 2
 	max_prob = 0.0
 	max_at_pos = ""
 	for i in l:
@@ -97,20 +90,19 @@ for b in nposition.iterkeys():
 
 for words in range(numWords):
 	newWord = ""
-	len_of_newWord = int(random.gauss(meanLength,stdLength))
-	if len_of_newWord == 0:
-		len_of_newWord = int(random.gauss(meanLength,stdLength))
+	len_of_newWord = random.randint(shortest, longest)
 	seed = select_weighted(ncombos)
 	list_of_bigrams = list()
 	list_of_bigrams.append(seed)
 	tempDict = relations[seed]
-	for l in range(len_of_newWord-1):
+	for l in range(len_of_newWord):
 		related = select_weighted(tempDict)
 		list_of_bigrams.append(related)
 	for l in range(len_of_newWord):
 		winner = select_max_at_pos(list_of_bigrams, posprops, l)
 		newWord += winner
-		list_of_bigrams.remove(winner)
+		if winner in list_of_bigrams:
+			list_of_bigrams.remove(winner)
 	print newWord
 
 
