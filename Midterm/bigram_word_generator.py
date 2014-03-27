@@ -16,7 +16,15 @@ newWords = list()
 absurdity = .001
 shortest = 1
 longest = 14
-numWords = 10
+numWords = 100
+
+#functions
+def select_weighted(d):
+   offset = random.randint(0, sum(d.itervalues())-1)
+   for k, v in d.iteritems():
+      if offset < v:
+         return k
+      offset -= v
 
 
 #combinations of letters in alphabet
@@ -50,21 +58,7 @@ for word in sys.stdin:
 	# 	l.append(temp)
 
 
-sorted_ncombos = sorted(ncombos.iteritems(), key=operator.itemgetter(1), reverse=True)
-cumsum = 0;
-for i in range(len(sorted_ncombos)):
-	cumsum += sorted_ncombos[i][1]
-	sorted_ncombos[i] += (cumsum, )
 
-print max(sorted_ncombos, key=operator.itemgetter(2))[2]	
-
-#a separate attempt at figuring out how to choice from the list of bigram frequencies
-x = ncombos.items()
-dt = np.dtype([('bigram', np.str_, 2), ('matches', np.float64, 1)])
-ncombos_array = np.asarray(x, dtype=dt)
-ncombos_array.sort(order ='matches')
-y = np.cumsum(ncombos_array['matches'])
-ncombos_array
 
 #organize the position of the bigrams into ranges, using ranges to avoid bigrams showing
 #up where they normally do
@@ -111,6 +105,7 @@ for c in ncombos.iterkeys():
 	 	modeList.append(x)
 
 #sort nprops
+
 sorted_nprops = sorted(nprops.iteritems(), key=operator.itemgetter(1), reverse=True)
 
 
@@ -130,24 +125,30 @@ alpha = (sum_of_qdiffs/count)/((sum_of_sqdiffs/count)**2)-2 #KURTOSIS, aka shape
 stddev =(sum_of_sqdiffs/count)**(1/2) #standard deviation
 
 
-# for words in range(numWords):
-# 	newWord = ""
-# 	len_of_newWord = random.randint(shortest, longest)
-# 	chooser = random.randint()
-# 	for l in range(len_of_newWord):
-		
-# 		#old pareto variate method - chooser = mode[0][0]*random.paretovariate(alpha)
-# 		#print chooser
-# 		winRange = 1
-# 		winner = ""
-# 		for c in nprops.iterkeys():
-# 			compare = abs((nprops[c] - chooser))
-# 			if compare < winRange:
-# 				winner = c
-# 				winRange = compare
-# 		#print winner
-# 		newWord += winner
-# 	newWords.append(newWord)
+for words in range(numWords):
+	newWord = ""
+	len_of_newWord = random.randint(shortest, longest)
+	seed = select_weighted(ncombos)
+	print seed
+
+	# for i in range(len(sorted_ncombos)):
+	# 	if chooser < sorted_ncombos[i][2]:
+	# 		seeder = sorted_ncombos[i][0]
+	# 	chooser -= sorted_ncombos[i][2]
+	
+	# for l in range(len_of_newWord):
+	# 	#old pareto variate method - chooser = mode[0][0]*random.paretovariate(alpha)
+	# 	#print chooser
+	# 	winRange = 1
+	# 	winner = ""
+	# 	for c in nprops.iterkeys():
+	# 		compare = abs((nprops[c] - chooser))
+	# 		if compare < winRange:
+	# 			winner = c
+	# 			winRange = compare
+	# 	#print winner
+	# 	newWord += winner
+	# newWords.append(newWord)
 
 # for word in newWords:
 # 	print word
