@@ -1,21 +1,13 @@
 import itertools, string, sys, random, operator
-import numpy as np
-import matplotlib.pyplot as plt
-from collections import Counter
 
 combos = list()
 ncombos = dict()
 nposition = dict()
 relations = dict()
-
 posprops  = dict()
-nprops = dict() #proportion of bigram
-newWords = list()
 
-#word creation controls
-absurdity = .001
-shortest = 1
-longest = 14
+meanLength = 4
+stdLength = 1.7
 numWords = 100
 
 #functions
@@ -26,11 +18,28 @@ def select_weighted(d):
          return k
       offset -= v
 
+def select_max_at_pos(l, d, pos):
+	if pos < 2:
+		pos = 0
+	elif pos < 6:
+		pos = 1
+	elif pos < 10:
+		pos = 2
+	elif pos > 10:
+		pos = 3
+	max_prob = 0.0
+	max_at_pos = ""
+	for i in l:
+		if d[i][pos] > max_prob:
+			max_at_pos = i
+			max_prob = d[i][pos]
+	return max_at_pos
+
 
 #combinations of letters in alphabet
 combos = [x+y for x,y in itertools.permutations(string.ascii_lowercase, 2)]
 
-#count up how often those combinations appear in the english language, words form Wordnet
+#bigram frequency, position, and relationships
 for word in sys.stdin:
 	word = word.strip().lower()
 	foundBigrams = list()
@@ -40,7 +49,7 @@ for word in sys.stdin:
 			#establish relationship between bigrams
 			foundBigrams.append(c)
 			if c not in relations:
-				relations[c] = list()
+				relations[c] = dict()
 			#get the position of the bigram in the word
 			position = word.find(c)
 			if c in nposition:
@@ -52,108 +61,60 @@ for word in sys.stdin:
 				ncombos[c] += 1
 			else:
 				ncombos[c] = 1
-	# for b, l in relations.items():
-	# 	temp = list()
-	# 	temp = [fb for fb in foundBigrams if fb != b]
-	# 	l.append(temp)
+	for b, l in relations.items():
+		temp = list()
+		temp = [fb for fb in foundBigrams if fb != b]
+		for t in temp:
+			if t in l:
+				l[t] += 1
+			else:
+				l[t] = 1
 
 
-
-
-#organize the position of the bigrams into ranges, using ranges to avoid bigrams showing
-#up where they normally do
-for pos in nposition.iterkeys():
+#organize the position of the bigrams into ranges, using ranges to bake in randomness i.e. bigrams not 
+#showing up where they normally do
+for b in nposition.iterkeys():
 	count = 0.0
 	early = 0
 	mid = 0
 	late = 0
 	end = 0
-	for p in nposition[pos]:
+	for p in nposition[b]:
 		count += 1
-		if p < 2:
+		if p < 3:
 			early += 1
-		elif p < 6:
+		elif p < 7:
 			mid += 1
-		elif p < 10:
+		elif p < 11:
 			late += 1
-		elif p > 10:
+		elif p > 11:
 			end +=1
-	posprops[pos] = (early/count, mid/count, late/count, end/count)
+	posprops[b] = [early/count, mid/count, late/count, end/count]
 
 
-#add up the total number of matches for some math!
-total_matches = 0.0
-most_matches = 0
-winner = ''
-for c, m in ncombos.iteritems():
-	total_matches += m
-	if m > most_matches:
-		most_matches = m
-		winner = c
 
-
-#calculate frequency combos appear and weed out combos that are negligble
-modeList = list()
-mean = 0
-count = 0
-for c in ncombos.iterkeys():
-	 x = ncombos[c]/total_matches
-	 if x > absurdity:				#absurdity is how low the frequency needs to be for the bigram to qualify
-	 	mean += x
-	 	count += 1
-	 	nprops[c] = x
-	 	modeList.append(x)
-
-#sort nprops
-
-sorted_nprops = sorted(nprops.iteritems(), key=operator.itemgetter(1), reverse=True)
-
-
-#determine mode and mean
-data = Counter(modeList)
-mode = data.most_common(1)
-mean = mean/count
-
-
-sum_of_sqdiffs = 0.0
-sum_of_qdiffs = 0.0
-for prop in nprops.itervalues():
-	sum_of_sqdiffs = sum_of_sqdiffs + (prop - mean)**2
-	sum_of_qdiffs = sum_of_qdiffs + (prop-mean)**4 
-
-alpha = (sum_of_qdiffs/count)/((sum_of_sqdiffs/count)**2)-2 #KURTOSIS, aka shape of the curve
-stddev =(sum_of_sqdiffs/count)**(1/2) #standard deviation
-
+#make the words
 
 for words in range(numWords):
 	newWord = ""
-	len_of_newWord = random.randint(shortest, longest)
+	len_of_newWord = int(random.gauss(meanLength,stdLength))
+	if len_of_newWord == 0:
+		len_of_newWord = int(random.gauss(meanLength,stdLength))
 	seed = select_weighted(ncombos)
-	print seed
+	list_of_bigrams = list()
+	list_of_bigrams.append(seed)
+	tempDict = relations[seed]
+	for l in range(len_of_newWord-1):
+		related = select_weighted(tempDict)
+		list_of_bigrams.append(related)
+	for l in range(len_of_newWord):
+		winner = select_max_at_pos(list_of_bigrams, posprops, l)
+		newWord += winner
+		list_of_bigrams.remove(winner)
+	print newWord
 
-	# for i in range(len(sorted_ncombos)):
-	# 	if chooser < sorted_ncombos[i][2]:
-	# 		seeder = sorted_ncombos[i][0]
-	# 	chooser -= sorted_ncombos[i][2]
-	
-	# for l in range(len_of_newWord):
-	# 	#old pareto variate method - chooser = mode[0][0]*random.paretovariate(alpha)
-	# 	#print chooser
-	# 	winRange = 1
-	# 	winner = ""
-	# 	for c in nprops.iterkeys():
-	# 		compare = abs((nprops[c] - chooser))
-	# 		if compare < winRange:
-	# 			winner = c
-	# 			winRange = compare
-	# 	#print winner
-	# 	newWord += winner
-	# newWords.append(newWord)
 
-# for word in newWords:
-# 	print word
 
-#let's create some new nouns!
 
 
 
