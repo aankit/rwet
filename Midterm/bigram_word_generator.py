@@ -65,7 +65,7 @@ for word in sys.stdin:
 
 
 #organize the position of the bigrams into ranges, using ranges to bake in randomness i.e. bigrams not 
-#showing up where they normally do
+#showing up at only the positions they 'naturally' do
 for b in nposition.iterkeys():
 	count = 0.0
 	early = 0
