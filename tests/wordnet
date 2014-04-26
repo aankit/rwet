@@ -1,0 +1,14 @@
+#wordnet functions - what data do I want to extract?
+#lemmas - names, antonyms, derivationally_related_forms, pertainyms (adj) 
+
+import nltk
+from nltk.corups import wn
+import sys
+
+word = wn.synsets('sys.argv[1]')
+thing = list()
+
+for synsets in word:
+...     for lemma in synsets.lemmas:
+...             if 'salt' in lemma.name:
+...                     thing.append.lemma

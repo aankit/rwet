@@ -1,10 +1,10 @@
 #wordnet functions - what data do I want to extract?
 #lemmas - names, antonyms, derivationally_related_forms, pertainyms (adj) 
 
-import sys, nltk, itertools
+
 from nltk.corpus import wordnet as wn
 
-class LexNet(object):
+class Lexnet(object):
 
 	def __init__(self, ):
 		self.wordList = list()
@@ -14,16 +14,18 @@ class LexNet(object):
 		self.senseNum = senseNum
 		return 1
 
-	def words(self, lex, senseNum=1):
+	def words(self, lex):
 		for s in list(wn.all_synsets()):
-			if s.lexname == lex and int(s.name[-2:]) == senseNum:
+			if s.lexname == lex and :
 				for l in s.lemmas:
 					self.wordList.append(l.name)
 		return self.wordList
 
 
+
+
 if __name__ == '__main__':
 	thingtolookup = 'adj.all'
 	thethingssense = 1
-	ln = LexNet(thingtolookup, thethingssense)
+	ln = Lexnet(thingtolookup, thethingssense)
 	print ln.words()
