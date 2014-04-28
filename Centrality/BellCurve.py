@@ -11,7 +11,7 @@ class BellCurve(object):
   def probability(self, x):
     return (1/(self.sd*pow(2*math.pi, .5)))*math.exp(-(pow(x-self.mean, 2))/(2*self.var))
 
-  def sd(self, x):
+  def stdev(self, x):
     sd = (x - self.mean)/self.sd
     return sd
 

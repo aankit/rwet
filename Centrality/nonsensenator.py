@@ -3,7 +3,7 @@ import itertools, string, random
 class Nonsensenator(object):
 
 	def __init__(self):
-		self.bigrams = False
+		self.bigrams = True
 		self.source = list()
 		#object objects
 		self.combos = list()
@@ -17,7 +17,7 @@ class Nonsensenator(object):
 		self.combos = [x+y for x,y in itertools.product(string.ascii_lowercase, repeat=2)]
 		#analyze the bigrams found in the words
 
-	def giveMeNonsense(self, ofThisStuff, b):
+	def giveMeNonsense(self, ofThisStuff, b=True):
 		self.source = ofThisStuff
 		self.bigrams = b
 		# self.bigramAnalyzer()

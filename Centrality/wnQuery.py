@@ -3,7 +3,7 @@
 
 
 from nltk.corpus import wordnet as wn
-import random, math
+import random
 
 class Syns(object):
 
@@ -26,37 +26,33 @@ class Syns(object):
 		ln = wn.synset(synset).lexname
 		hyper = self.lemmatize(self.getHypernyms(synset))
 		definition = self.getDefinition(synset)
-		lemmas = self.getLemmas(synset)
+		lemmas = self.lemmatize(self.getLemmas(synset))
 		examples = self.getExamples(synset)
 		strings = self.getFrameStrings(synset)
 		hypo = self.lemmatize(self.getHyponyms(synset))
 		
-		# list of the things to 
-		ontologyList = [ln, hyper, definition, lemmas, examples, strings, hypo]
-		return ontologyList
+		# this is a fun thing to play with
+		ontologyList = [ln, lemmas, hypo]
+		returnList = list()
+		for o in ontologyList:
+			if o:
+				returnList.append(o)
+		return returnList
 
 	def ontologies(self, synset, sd):
 		o = self.ontoList(synset)
-		tempList = list()
+		inBounds = list()
 		for i in range(len(o)):
 			lbound = 0 - len(o)/2.0 + i
 			upbound = lbound + 1
 			if sd>=lbound and sd<=upbound:
-				tempList.append(o[i])
-		return tempList
-
-	#mean and var for the following:
-#	> nonsense
-#	> individual senses
-#standard dev:
-#	. x < -2.0 --> lexnames, hypernym
-#	. x < -2.0 --> hypernyms, verb frame string 
-#	. -2.0<x<-1.0 --> verb frame strings, example
-#	. 0>x>-1 --> definition, example
-#	. 0<x<1 --> verb frame strings, example
-#	. 1<x<2 --> hypernyms, verb frame string
-#	. x>2	--> lexnames, hypernym
-#lemmas sprinkled throughout
+				if type(o[i]) == list:
+					# print "this is o[i]: " + str(o[i])
+					j = random.choice(o[i])
+					inBounds.append(j)
+				else:
+					inBounds.append(o[i])
+		return inBounds
 
 	def getDefinition(self, synset):
 		return wn.synset(synset).definition
@@ -93,9 +89,9 @@ class Syns(object):
 
 	def lemmatize(self, thingList):
 		try:
-			return random.choice([t.name for tl in thingList for t in tl.lemmas])
+			return [t.name for tl in thingList for t in tl.lemmas]
 		except:
-			return random.choice([t.name for t in thingList])
+			return [t.name for t in thingList]
 
 
 #decode('ascii', errors='replace') this might be necessary
@@ -103,7 +99,9 @@ class Syns(object):
 if __name__ == "__main__":
 	import sys
 	syn = Syns(sys.argv[1], sys.argv[2])
+	theList = list()
 	for s in syn.structure.keys():
-		print syn.ontologies(s, -1.5)
+		print type(syn.ontologies(s, -1.5))
+		
 
 
