@@ -23,35 +23,38 @@ class Syns(object):
 
 	def ontoList(self, synset):
 		# things to pick from
-		ln = wn.synset(synset).lexname
+		ln = wn.synset(synset).lexname.split('.')[1]
 		hyper = self.lemmatize(self.getHypernyms(synset))
 		definition = self.getDefinition(synset)
 		lemmas = self.lemmatize(self.getLemmas(synset))
 		examples = self.getExamples(synset)
-		strings = self.getFrameStrings(synset)
-		hypo = self.lemmatize(self.getHyponyms(synset))
+		strings = [string.replace("_", " ") for string in self.getFrameStrings(synset)]
+		hypo = self.lemmatize(self.getHyponyms(synset))  
 		
 		# this is a fun thing to play with
-		ontologyList = [ln, lemmas, hypo]
+		ontologyList = [strings, ln, lemmas, examples, hypo, definition, hyper]
 		returnList = list()
 		for o in ontologyList:
 			if o:
 				returnList.append(o)
 		return returnList
 
+	def chooser(self, l, i):
+		if type(l[i]) == list:
+			# print "this is o[i]: " + str(o[i])
+			j = random.choice(l[i])
+			return j
+		else:
+			return l[i]
+
 	def ontologies(self, synset, sd):
 		o = self.ontoList(synset)
-		inBounds = list()
-		for i in range(len(o)):
-			lbound = 0 - len(o)/2.0 + i
-			upbound = lbound + 1
-			if sd>=lbound and sd<=upbound:
-				if type(o[i]) == list:
-					# print "this is o[i]: " + str(o[i])
-					j = random.choice(o[i])
-					inBounds.append(j)
-				else:
-					inBounds.append(o[i])
+		inBounds = ""
+		if o:
+			inBounds = self.chooser(o, random.randint(0,len(o)-1))
+			# for i in range(-2, 2):
+			# 	if sd<=i and sd>=i-1:
+			# 		inBounds.append(self.chooser(o, i+2))
 		return inBounds
 
 	def getDefinition(self, synset):
@@ -67,7 +70,8 @@ class Syns(object):
 		frameStrings = list()
 		synset = wn.synset(synset)
 		for lemma in synset.lemmas:
-			frameStrings.extend(lemma.frame_strings)
+			if(lemma != synset.lemmas[0]):
+				frameStrings.extend(lemma.frame_strings)
 		return frameStrings
 
 	def getLexname(self, synset):
@@ -89,9 +93,9 @@ class Syns(object):
 
 	def lemmatize(self, thingList):
 		try:
-			return [t.name for tl in thingList for t in tl.lemmas]
+			return [t.name.replace("_", " ") for tl in thingList for t in tl.lemmas]
 		except:
-			return [t.name for t in thingList]
+			return [t.name.replace("_", " ") for t in thingList]
 
 
 #decode('ascii', errors='replace') this might be necessary

@@ -17,11 +17,11 @@ class Nonsensenator(object):
 		self.combos = [x+y for x,y in itertools.product(string.ascii_lowercase, repeat=2)]
 		#analyze the bigrams found in the words
 
-	def giveMeNonsense(self, ofThisStuff, b=True):
+	def giveMeNonsense(self, ofThisStuff, length, b=True):
 		self.source = ofThisStuff
 		self.bigrams = b
 		# self.bigramAnalyzer()
-		return self.newWord()
+		return self.newWord(length)
 
 	def select_weighted_int(self, d):
 	   offset = random.randint(0, sum(d.itervalues())-1)
@@ -90,19 +90,23 @@ class Nonsensenator(object):
 					# 	nextBigram = word[position+1] + word[position+2]
 					# 	self.add(self.after, c, nextBigram)
 
-	def newWord(self):
+	def newWord(self, length):
 		
 		if self.bigrams:
 			self.bigramAnalyzer()
 			newWord = ""
 
 			#get the bigram seed that will create our word and the position we want to start it in
-			seed = self.select_weighted_(self.ncombos)
+			seed = self.select_weighted_int(self.ncombos)
 			seedPos = self.select_weighted_int(self.nposition[seed])
-			print seed
 
 			#length of word based on seedPos
-			word = [0]*(seedPos+random.randint(1,4))
+			# wordLen = length-seedPos
+			word = list()
+			if seedPos > length:
+				word = [0]*(seedPos+1)
+			else:
+				word = [0]*(length+1)
 			word[seedPos] = seed
 
 			for i in range(len(word)):
