@@ -32,7 +32,15 @@ def getWords(x, k):
 	sd = v.stdev(x)
 	if sd<nonsense and sd>-nonsense:
 		w = s.ontologies(k, sd)
-		return n.giveMeNonsense(cleanOntology, len(w)/2, True)
+		#turn it into a list
+		wList = w.split(" ")
+		if len(wList) > 1:
+			tempList = list()
+			for i in wList:
+				tempList.append(n.giveMeNonsense(cleanOntology, len(i)/2, True))
+			return " ".join(tempList)
+		else:
+			return n.giveMeNonsense(cleanOntology, len(w)/2, True)
 	else:
 		return s.ontologies(k, sd)
 
@@ -48,9 +56,12 @@ def getWords(x, k):
 #quick's the word, sharp's the action...and remember, surprise is on our side
 n = nonsensenator.Nonsensenator()
 s = Syns(sys.argv[1], sys.argv[2])
+
+#these are the keys
+varScalar = 1.20	#shape of the curve
+nonsense = .25		#amount and spread of nonsense
+
 curves = dict()
-varScalar = 1.2
-nonsense = .25
 sourceOntology = list()
 cleanOntology = list()
 

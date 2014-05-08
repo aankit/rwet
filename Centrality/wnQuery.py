@@ -31,7 +31,6 @@ class Syns(object):
 		strings = [string.replace("_", " ") for string in self.getFrameStrings(synset)]
 		hypo = self.lemmatize(self.getHyponyms(synset))  
 		
-		# this is a fun thing to play with
 		ontologyList = [strings, ln, lemmas, examples, hypo, definition, hyper]
 		returnList = list()
 		for o in ontologyList:
@@ -46,6 +45,13 @@ class Syns(object):
 			return j
 		else:
 			return l[i]
+
+	def findCaps(self, l):
+		templist = list()
+		for i in l:
+			
+			templist.append(" ".join([word for word in i.split(" ") if not word.isupper()]))
+		return templist
 
 	def ontologies(self, synset, sd):
 		o = self.ontoList(synset)
@@ -71,7 +77,8 @@ class Syns(object):
 		synset = wn.synset(synset)
 		for lemma in synset.lemmas:
 			if(lemma != synset.lemmas[0]):
-				frameStrings.extend(lemma.frame_strings)
+				lfs_less = self.findCaps(lemma.frame_strings)
+				frameStrings.extend(lfs_less)
 		return frameStrings
 
 	def getLexname(self, synset):
