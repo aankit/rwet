@@ -8,6 +8,8 @@ import random
 class Syns(object):
 
 	def __init__(self, word, pos):
+		self.word = word
+		self.pos = pos
 		self.number = 0
 		self.structure = self.generateStructure(word, pos)
 
@@ -49,7 +51,6 @@ class Syns(object):
 	def findCaps(self, l):
 		templist = list()
 		for i in l:
-			
 			templist.append(" ".join([word for word in i.split(" ") if not word.isupper()]))
 		return templist
 
@@ -62,6 +63,16 @@ class Syns(object):
 			# 	if sd<=i and sd>=i-1:
 			# 		inBounds.append(self.chooser(o, i+2))
 		return inBounds
+
+	def lexStringFilter(self, synset):
+		compareList = list()
+		compareList.extend(self.lemmatize(self.getLemmas(synset)))
+		compareList.extend(self.lemmatize(self.getHypernyms(synset)))
+		compareList.extend(self.lemmatize(self.getHyponyms(synset)))
+		return compareList
+
+	def getSynset(self, word):
+		return [synset.name for synset in wn.synsets(word) if synset.pos == self.pos]
 
 	def getDefinition(self, synset):
 		return wn.synset(synset).definition

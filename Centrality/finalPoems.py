@@ -7,15 +7,10 @@ import sys, numpy, random, operator
 def select_weighted_uni(d, min, max):
 	target = random.uniform(min, max)
 	winner = ''
-	# closest = 5
 	sortedProb = sorted(d.iteritems(), key=operator.itemgetter(1), reverse=True)
 	for k, v in sortedProb:
-		if target < v:
+		if target < v:	
 			winner = k
-	# for k, v in d.items():
-	# 	if abs(target-v) < closest:
-	# 		closest = abs(target-v)
-	# 		winner = k		
 	return winner
 
 def pickSynset(x):
@@ -23,9 +18,8 @@ def pickSynset(x):
 	for k,v in curves.items():
 		prob[k] = v.probability(x)
 	maxProb = max(prob.iteritems(), key=lambda foo:foo[1])[1]
-	# print max(prob.iteritems(), key=lambda foo:foo[1])[0]
-	# print maxProb
 	return select_weighted_uni(prob, 0, maxProb)
+
 
 def getWords(x, k):
 	v = curves[k]
@@ -37,14 +31,20 @@ def getWords(x, k):
 		if len(wList) > 1:
 			tempList = list()
 			for i in wList:
-				tempList.append(n.giveMeNonsense(cleanOntology, len(i)/2, True))
+				# iLemma = s.lemmatize(s.getLemmas(s.getSynset(i)))
+				# print iLemma
+				# print s.lexStringFilter(k)
+				if i in s.lexStringFilter(k):
+					# print 'eval'
+					tempList.append(n.giveMeNonsense(cleanOntology, len(i)/2, True))
+				else:
+					tempList.append(i)
 			return " ".join(tempList)
 		else:
 			return n.giveMeNonsense(cleanOntology, len(w)/2, True)
 	else:
 		return s.ontologies(k, sd)
 
-# def getWords(k, sd):
 	
 
 #				 ||   __/\				
@@ -59,7 +59,9 @@ s = Syns(sys.argv[1], sys.argv[2])
 
 #these are the keys
 varScalar = 1.20	#shape of the curve
-nonsense = .25		#amount and spread of nonsense
+nonsense = .50		#amount and spread of nonsense
+numLines = 10		#poem length
+minWords = 12		#line length
 
 curves = dict()
 sourceOntology = list()
@@ -72,6 +74,7 @@ for k,v in s.structure.items():
 	bc = BellCurve.BellCurve(v, sv)
 	curves[k] = bc
 	sourceOntology.extend(s.ontoList(k))
+
 
 #clean up the sourceOntology to be a list of individual words, that's all
 #nonsensenator will accept
@@ -90,13 +93,13 @@ for item in sourceOntology:
 			if w.lower() != 'something' and w.lower() != 'somebody':
 				cleanOntology.append(w)
 
-# poem and line length adjusters
-numLines = 20
-minWords = 12
+
 
 #main loop, can adjust the linspace min and max to calibrate the poem
 xAxis = numpy.linspace(-.5,1.25, num=numLines)
+lineCount = 0;
 for x in numpy.nditer(xAxis):
+	lineCount += 1
 	line=list()
 	totalWords = 0
 	diff = minWords - totalWords
