@@ -122,8 +122,7 @@ if __name__ == "__main__":
 	import sys
 	syn = Syns(sys.argv[1], sys.argv[2])
 	theList = list()
-	for s in syn.structure.keys():
-		print type(syn.ontologies(s, -1.5))
+	syn.getSynsets('love')
 		
 
 
